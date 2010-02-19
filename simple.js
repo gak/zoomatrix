@@ -67,6 +67,9 @@ function initShaders() {
   shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
   gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
+  shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
+  gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
+
   shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
   shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 }
@@ -113,11 +116,23 @@ function initBuffers() {
        1.0,  1.0,  0.0,
       -1.0,  1.0,  0.0,
        1.0, -1.0,  0.0,
-      -1.0, -1.0,  0.0
+      -1.0, -1.0,  0.0,
+       5.0,  5.0,  0.0,
   ];
   gl.bufferData(gl.ARRAY_BUFFER, new WebGLFloatArray(vertices), gl.STATIC_DRAW);
   squareVertexPositionBuffer.itemSize = 3;
-  squareVertexPositionBuffer.numItems = 4;
+  squareVertexPositionBuffer.numItems = 5;
+
+  squareVertexColorBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexColorBuffer);
+  colors = []
+  for (var i=0; i < squareVertexPositionBuffer.numItems; i++) {
+    colors = colors.concat([0.5 + i / 4, 0.5 + Math.random(), 1.0, 1.0]);
+  }
+  gl.bufferData(gl.ARRAY_BUFFER, new WebGLFloatArray(colors), gl.STATIC_DRAW);
+  squareVertexColorBuffer.itemSize = 4;
+  squareVertexColorBuffer.numItems = squareVertexPositionBuffer.numItems;
+
 }
 
 
@@ -127,10 +142,14 @@ function drawScene() {
   perspective(45, 1.0, 0.1, 100.0);
   loadIdentity();
 
-  mvTranslate([0.0, 0.0, -7.0]);
+  mvTranslate([0.0, 0.0, -100.0]);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
   gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexColorBuffer);
+  gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, squareVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
   setMatrixUniforms();
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
 
@@ -144,7 +163,7 @@ function webGLStart() {
   initShaders();
   initBuffers();
 
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clearColor(0.5, 0.6, 0.5, 1.0);
 
   gl.clearDepth(1.0);
 
