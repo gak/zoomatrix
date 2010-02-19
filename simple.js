@@ -1,4 +1,5 @@
 var gl;
+
 function initGL(canvas) {
   try {
     gl = canvas.getContext("experimental-webgl");
@@ -102,19 +103,9 @@ function setMatrixUniforms() {
 
 
 
-var triangleVertexPositionBuffer;
 var squareVertexPositionBuffer;
+
 function initBuffers() {
-  triangleVertexPositionBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
-  var vertices = [
-       0.0,  1.0,  0.0,
-      -1.0, -1.0,  0.0,
-       1.0, -1.0,  0.0
-  ];
-  gl.bufferData(gl.ARRAY_BUFFER, new WebGLFloatArray(vertices), gl.STATIC_DRAW);
-  triangleVertexPositionBuffer.itemSize = 3;
-  triangleVertexPositionBuffer.numItems = 3;
 
   squareVertexPositionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
@@ -136,19 +127,13 @@ function drawScene() {
   perspective(45, 1.0, 0.1, 100.0);
   loadIdentity();
 
-  mvTranslate([-1.5, 0.0, -7.0]);
+  mvTranslate([0.0, 0.0, -7.0]);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
-  gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-  setMatrixUniforms();
-  gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
-
-
-  mvTranslate([3.0, 0.0, 0.0]);
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
   gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
   setMatrixUniforms();
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
+
 }
 
 
