@@ -107,8 +107,9 @@ function setMatrixUniforms() {
 
 
 var squareVertexPositionBuffer;
+var squareVertexColorBuffer;
 
-function initBuffers() {
+function initVertexBuffers() {
 
   squareVertexPositionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
@@ -123,13 +124,17 @@ function initBuffers() {
   squareVertexPositionBuffer.itemSize = 3;
   squareVertexPositionBuffer.numItems = 5;
 
+}
+
+function initColorBuffers() {
+
   squareVertexColorBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexColorBuffer);
   colors = []
   for (var i=0; i < squareVertexPositionBuffer.numItems; i++) {
     colors = colors.concat([0.5 + i / 4, 0.5 + Math.random(), 1.0, 1.0]);
   }
-  gl.bufferData(gl.ARRAY_BUFFER, new WebGLFloatArray(colors), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new WebGLFloatArray(colors), gl.DYNAMIC_DRAW);
   squareVertexColorBuffer.itemSize = 4;
   squareVertexColorBuffer.numItems = squareVertexPositionBuffer.numItems;
 
@@ -137,12 +142,15 @@ function initBuffers() {
 
 
 function drawScene() {
+  
+  initColorBuffers();
+  
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   perspective(45, 1.0, 0.1, 100.0);
   loadIdentity();
 
-  mvTranslate([0.0, 0.0, -100.0]);
+  mvTranslate([0.0, 0.0, -20.0]);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
   gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -161,7 +169,8 @@ function webGLStart() {
   var canvas = document.getElementById("lesson01-canvas");
   initGL(canvas);
   initShaders();
-  initBuffers();
+  initVertexBuffers();
+  initColorBuffers();
 
   gl.clearColor(0.5, 0.6, 0.5, 1.0);
 
@@ -170,6 +179,7 @@ function webGLStart() {
   gl.enable(gl.DEPTH_TEST);
   gl.depthFunc(gl.LEQUAL);
 
-  setInterval(drawScene, 15);
+  setInterval(drawScene, 100);
+
 }
 
