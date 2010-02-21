@@ -109,20 +109,48 @@ function setMatrixUniforms() {
 var squareVertexPositionBuffer;
 var squareVertexColorBuffer;
 
+var width = 10;
+var height = 10;
+
 function initVertexBuffers() {
 
   squareVertexPositionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
-  vertices = [
+  v = [
        1.0,  1.0,  0.0,
       -1.0,  1.0,  0.0,
        1.0, -1.0,  0.0,
       -1.0, -1.0,  0.0,
        5.0,  5.0,  0.0,
   ];
+
+  vertices = [];
+  verts = 0;
+
+  for (var x = 0; x < width; x++) {
+
+    for (var y = 0; y < height; y++) {
+
+      vertices = vertices.concat([
+
+        x + 0, y + 0, 0,
+        x + 1, y + 0, 0,
+        x + 0, y + 1, 0,
+        x + 1, y + 1, 0,
+        x + 1, y + 1, 0,
+
+      ]);
+  
+      verts += 5;
+
+    }
+
+  }
+
+
   gl.bufferData(gl.ARRAY_BUFFER, new WebGLFloatArray(vertices), gl.STATIC_DRAW);
   squareVertexPositionBuffer.itemSize = 3;
-  squareVertexPositionBuffer.numItems = 5;
+  squareVertexPositionBuffer.numItems = verts;
 
 }
 
@@ -131,8 +159,8 @@ function initColorBuffers() {
   squareVertexColorBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexColorBuffer);
   colors = []
-  for (var i=0; i < squareVertexPositionBuffer.numItems; i++) {
-    colors = colors.concat([0.5 + i / 4, 0.5 + Math.random(), 1.0, 1.0]);
+  for (var i = 0; i < squareVertexPositionBuffer.numItems; i++) {
+    colors = colors.concat([Math.random(), 0.5 + Math.random(), 1.0, 1.0]);
   }
   gl.bufferData(gl.ARRAY_BUFFER, new WebGLFloatArray(colors), gl.DYNAMIC_DRAW);
   squareVertexColorBuffer.itemSize = 4;
@@ -150,7 +178,7 @@ function drawScene() {
   perspective(45, 1.0, 0.1, 100.0);
   loadIdentity();
 
-  mvTranslate([0.0, 0.0, -20.0]);
+  mvTranslate([0.0, 0.0, -50.0]);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
   gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -176,10 +204,9 @@ function webGLStart() {
 
   gl.clearDepth(1.0);
 
-  gl.enable(gl.DEPTH_TEST);
-  gl.depthFunc(gl.LEQUAL);
+  gl.disable(gl.DEPTH_TEST);
 
-  setInterval(drawScene, 100);
+  setInterval(drawScene, 0);
 
 }
 
