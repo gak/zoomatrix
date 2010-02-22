@@ -6,7 +6,9 @@
  
 <script type="text/javascript" src="sylvester.js"></script> 
 <script type="text/javascript" src="glUtils.js"></script> 
- 
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script> 
+
+
 <script id="shader-fs" type="x-shader/x-fragment"> 
 
     varying vec4 vColor;
@@ -38,7 +40,10 @@
 <body onload="webGLStart();"> 
  
   <canvas id="lesson01-canvas" style="border: none;" width="500" height="500"></canvas> 
- 
+
+  <div id="fps"></div>
+  <div id="log"></div>
+
 </body> 
  
 </html>

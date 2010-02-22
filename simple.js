@@ -1,17 +1,78 @@
 var gl;
 
-function glGrid() {
+function log(a) {
+
+  l = $('#log');
+  l.html(l.html() + a + '<br>');
+
+}
+
+function clearLog() {
+
+  l = $('#log');
+  l.html('');
+
+}
+
+function glGrid(w, h) {
  
   this.colors = [];
-  this.width = 0;
-  this.height = 0;
+  this.width = w;
+  this.height = h;
   
 }
-  
-var grid = new glGrid();
-grid.width = 10;
-grid.height = 10;
 
+var grid = new glGrid(30, 20);
+
+function FpsTimer() {
+
+  this.lastTs = 0;
+  this.recent = Array();
+  this.samples = 100;
+
+};
+
+FpsTimer.prototype.ts = function () {
+
+  return (new Date()).getTime();
+
+};
+
+FpsTimer.prototype.fps = function () {
+
+  newTs = this.ts();
+  dt = newTs - this.lastTs;
+  isFirst = !this.lastTs;
+  this.lastTs = newTs;
+  if (isFirst)
+    return;
+ 
+  f = 1000. / dt;
+  if (f == Infinity) f = 0;
+  var length = this.recent.unshift(f);
+
+  if (length > this.samples) {
+    this.recent.pop();
+    length --;
+  }
+
+  var total = 0;
+  $.each(this.recent, function(i, v) {
+    total += v;
+  });
+  return parseInt(total / length);
+
+}
+
+FpsTimer.prototype.update = function () {
+
+  $('#fps').html('FPS: ' + this.fps());
+
+}
+
+var fps = new FpsTimer();
+fps.update();
+ 
 function initGL(canvas) {
   try {
     gl = canvas.getContext("experimental-webgl");
@@ -200,7 +261,7 @@ function drawScene() {
   perspective(45, 1.0, 0.1, 100.0);
   loadIdentity();
 
-  mvTranslate([0.0, 0.0, -50.0]);
+  mvTranslate([-grid.width / 2, -grid.height / 2, -100.0]);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
   gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -210,6 +271,8 @@ function drawScene() {
 
   setMatrixUniforms();
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
+
+  fps.update();
 
 }
 
