@@ -1,9 +1,21 @@
 var gl;
 
+function glGrid() {
+ 
+  this.colors = [];
+  this.width = 0;
+  this.height = 0;
+  
+}
+  
+var grid = new glGrid();
+grid.width = 10;
+grid.height = 10;
+
 function initGL(canvas) {
   try {
     gl = canvas.getContext("experimental-webgl");
-    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.viewport(0, 0, canvas.grid.width, canvas.grid.height);
   } catch(e) {
   }
   if (!gl) {
@@ -109,8 +121,6 @@ function setMatrixUniforms() {
 var squareVertexPositionBuffer;
 var squareVertexColorBuffer;
 
-var width = 10;
-var height = 10;
 
 function initVertexBuffers() {
 
@@ -127,9 +137,9 @@ function initVertexBuffers() {
   vertices = [];
   verts = 0;
 
-  for (var x = 0; x < width; x++) {
+  for (var x = 0; x < grid.width; x++) {
 
-    for (var y = 0; y < height; y++) {
+    for (var y = 0; y < grid.height; y++) {
 
       vertices = vertices.concat([
 
@@ -154,24 +164,36 @@ function initVertexBuffers() {
 
 }
 
+grid.colors = [];
+
 function initColorBuffers() {
 
   squareVertexColorBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexColorBuffer);
-  colors = []
+  grid.colors = []
   for (var i = 0; i < squareVertexPositionBuffer.numItems; i++) {
-    colors = colors.concat([Math.random(), 0.5 + Math.random(), 1.0, 1.0]);
+    grid.colors = grid.colors.concat([Math.random(), 0.5 + Math.random(), 1.0, 1.0]);
   }
-  gl.bufferData(gl.ARRAY_BUFFER, new WebGLFloatArray(colors), gl.DYNAMIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new WebGLFloatArray(grid.colors), gl.DYNAMIC_DRAW);
   squareVertexColorBuffer.itemSize = 4;
   squareVertexColorBuffer.numItems = squareVertexPositionBuffer.numItems;
 
 }
 
+function updateColorBuffers() {
+
+  for (var i = 0; i < grid.colors.length; i++) {
+
+    grid.colors[i] = Math.random();
+
+  }
+  gl.bufferData(gl.ARRAY_BUFFER, new WebGLFloatArray(grid.colors), gl.DYNAMIC_DRAW);
+
+}
 
 function drawScene() {
   
-  initColorBuffers();
+  updateColorBuffers();
   
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -194,6 +216,7 @@ function drawScene() {
 
 
 function webGLStart() {
+
   var canvas = document.getElementById("lesson01-canvas");
   initGL(canvas);
   initShaders();
