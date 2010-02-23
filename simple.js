@@ -16,19 +16,24 @@ function clearLog() {
 
 function glGrid(w, h) {
  
-  this.colors = [];
   this.width = w;
   this.height = h;
+  this.colors = new WebGLFloatArray(w * h * 5 * 4);
+  this.posX = 0;
+  this.posY = 0;
   
 }
 
-var grid = new glGrid(30, 20);
+// 100 x 30 = 27fps in minefield
+// 100 x 30 = 14fps in chrome
+
+var grid = new glGrid(100, 30);
 
 function FpsTimer() {
 
   this.lastTs = 0;
   this.recent = Array();
-  this.samples = 100;
+  this.samples = 1000;
 
 };
 
@@ -218,26 +223,18 @@ function initVertexBuffers() {
 
   }
 
-
   gl.bufferData(gl.ARRAY_BUFFER, new WebGLFloatArray(vertices), gl.STATIC_DRAW);
   squareVertexPositionBuffer.itemSize = 3;
   squareVertexPositionBuffer.numItems = verts;
 
 }
 
-grid.colors = [];
-
 function initColorBuffers() {
 
   squareVertexColorBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexColorBuffer);
-  grid.colors = []
-  for (var i = 0; i < squareVertexPositionBuffer.numItems; i++) {
-    grid.colors = grid.colors.concat([Math.random(), 0.5 + Math.random(), 1.0, 1.0]);
-  }
-  gl.bufferData(gl.ARRAY_BUFFER, new WebGLFloatArray(grid.colors), gl.DYNAMIC_DRAW);
   squareVertexColorBuffer.itemSize = 4;
   squareVertexColorBuffer.numItems = squareVertexPositionBuffer.numItems;
+  gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexColorBuffer);
 
 }
 
@@ -245,10 +242,14 @@ function updateColorBuffers() {
 
   for (var i = 0; i < grid.colors.length; i++) {
 
-    grid.colors[i] = Math.random();
+    if (i % 4 == 3)
+      grid.colors[i] = 1;
+    else
+      grid.colors[i] = Math.random() * i / grid.colors.length;
 
   }
-  gl.bufferData(gl.ARRAY_BUFFER, new WebGLFloatArray(grid.colors), gl.DYNAMIC_DRAW);
+  
+  gl.bufferData(gl.ARRAY_BUFFER, grid.colors, gl.DYNAMIC_DRAW);
 
 }
 
@@ -258,10 +259,10 @@ function drawScene() {
   
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  perspective(45, 1.0, 0.1, 100.0);
+  perspective(90, 1.0, 0.1, 100.0);
   loadIdentity();
 
-  mvTranslate([-grid.width / 2, -grid.height / 2, -100.0]);
+  mvTranslate([-grid.width / 2 + grid.posX, -grid.height / 2 + grid.posY, -30.0]);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
   gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -276,15 +277,51 @@ function drawScene() {
 
 }
 
+var mouseDown = false;
+var lastMouseX = null;
+var lastMouseY = null;
 
+function handleMouseDown(event) {
+  mouseDown = true;
+  lastMouseX = event.clientX;
+  lastMouseY = event.clientY;
+}
+
+function handleMouseUp(event) {
+  mouseDown = false;
+}
+
+function handleMouseMove(event) {
+
+  if (!mouseDown) {
+    return;
+  }
+  var newX = event.clientX;
+  var newY = event.clientY;
+
+  diffX = lastMouseX - newX;
+  diffY = lastMouseY - newY;
+
+  lastMouseX = newX
+  lastMouseY = newY;
+
+  grid.posX -= diffX * 0.4;
+  grid.posY += diffY * 0.4;
+
+}
 
 function webGLStart() {
 
-  var canvas = document.getElementById("lesson01-canvas");
+  var canvas = document.getElementById("canvas");
   initGL(canvas);
   initShaders();
   initVertexBuffers();
   initColorBuffers();
+  updateColorBuffers();
+
+  canvas.onmousedown = handleMouseDown;
+  document.onmouseup = handleMouseUp;
+  document.onmousemove = handleMouseMove;
 
   gl.clearColor(0.5, 0.6, 0.5, 1.0);
 
