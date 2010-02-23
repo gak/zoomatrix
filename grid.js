@@ -18,16 +18,20 @@ function glGrid(w, h) {
  
   this.width = w;
   this.height = h;
+
+  // 5 vertices * 4 colour elements
   this.colors = new WebGLFloatArray(w * h * 5 * 4);
+
+  // camera
   this.posX = 0;
   this.posY = 0;
   
 }
 
-// 100 x 30 = 27fps in minefield
+// 100 x 30 = 86fps in minefield
 // 100 x 30 = 14fps in chrome
 
-var grid = new glGrid(100, 30);
+var grid = new glGrid(30, 30);
 
 function FpsTimer() {
 
@@ -192,13 +196,6 @@ function initVertexBuffers() {
 
   squareVertexPositionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
-  v = [
-       1.0,  1.0,  0.0,
-      -1.0,  1.0,  0.0,
-       1.0, -1.0,  0.0,
-      -1.0, -1.0,  0.0,
-       5.0,  5.0,  0.0,
-  ];
 
   vertices = [];
   verts = 0;
