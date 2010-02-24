@@ -40,7 +40,6 @@ fps.update();
 function initGL(canvas) {
   try {
     gl = canvas.getContext("experimental-webgl");
-    gl.viewport(0, 0, canvas.grid.width, canvas.grid.height);
   } catch(e) {
   }
   if (!gl) {
