@@ -1,4 +1,5 @@
 var gl;
+var drawTimer;
 
 function log(a) {
 
@@ -32,52 +33,6 @@ function glGrid(w, h) {
 // 100 x 30 = 14fps in chrome
 
 var grid = new glGrid(30, 30);
-
-function FpsTimer() {
-
-  this.lastTs = 0;
-  this.recent = Array();
-  this.samples = 1000;
-
-};
-
-FpsTimer.prototype.ts = function () {
-
-  return (new Date()).getTime();
-
-};
-
-FpsTimer.prototype.fps = function () {
-
-  newTs = this.ts();
-  dt = newTs - this.lastTs;
-  isFirst = !this.lastTs;
-  this.lastTs = newTs;
-  if (isFirst)
-    return;
- 
-  f = 1000. / dt;
-  if (f == Infinity) f = 0;
-  var length = this.recent.unshift(f);
-
-  if (length > this.samples) {
-    this.recent.pop();
-    length --;
-  }
-
-  var total = 0;
-  $.each(this.recent, function(i, v) {
-    total += v;
-  });
-  return parseInt(total / length);
-
-}
-
-FpsTimer.prototype.update = function () {
-
-  $('#fps').html('FPS: ' + this.fps());
-
-}
 
 var fps = new FpsTimer();
 fps.update();
@@ -326,7 +281,29 @@ function webGLStart() {
 
   gl.disable(gl.DEPTH_TEST);
 
-  setInterval(drawScene, 0);
+  startDrawInterval();
+
+}
+
+
+function pause() {
+
+  if (drawTimer) {
+
+    clearInterval(drawTimer);
+    drawTimer = 0;
+
+  } else {
+
+    startDrawInterval();
+
+  }
+
+}
+
+function startDrawInterval() {
+
+  drawTimer = setInterval(drawScene, 0);
 
 }
 
